@@ -8,4 +8,4 @@ Current Version: 1.0
 
 History:
 
-- 1.0: Created (I can't help laughing at the application's title: "MainForm".  Haha...) Ok... this will be part of the next changes.
+- 1.0 - 2008.03.27 - Created (I can't help laughing at the application's title: "MainForm".  Haha...) Ok... this will be part of the next changes.
