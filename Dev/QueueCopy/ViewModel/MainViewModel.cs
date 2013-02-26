@@ -251,6 +251,39 @@ namespace QueueCopy.ViewModel
         }
         #endregion
 
+        #region AutoStartOnDrop
+        /// <summary>
+        /// The <see cref="AutoStartOnDrop" /> property's name.
+        /// </summary>
+        public const string AutoStartOnDropPropertyName = "AutoStartOnDrop";
+
+        private bool _autoStartOnDrop;
+
+        /// <summary>
+        /// Sets and gets the AutoStartOnDrop property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool AutoStartOnDrop
+        {
+            get
+            {
+                return _autoStartOnDrop;
+            }
+
+            set
+            {
+                if (_autoStartOnDrop == value)
+                {
+                    return;
+                }
+
+                RaisePropertyChanging(AutoStartOnDropPropertyName);
+                _autoStartOnDrop = value;
+                RaisePropertyChanged(AutoStartOnDropPropertyName);
+            }
+        }
+        #endregion		
+		
         #endregion
 
         #region Commands

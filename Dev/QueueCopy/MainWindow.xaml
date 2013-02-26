@@ -199,6 +199,16 @@
                     </Grid>
                 </Grid>
             </TabItem>
+			<TabItem Header="Options">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+					</Grid.RowDefinitions>
+					<CheckBox IsChecked="{Binding AutoStartOnDrop}" Grid.Row="0">Auto Start Copy/Move on drop</CheckBox>
+                    <TextBlock Grid.Row="1" Margin="37,0,0,5">(when possible, of course)</TextBlock>
+				</Grid>
+			</TabItem>
         </TabControl>
 
 
