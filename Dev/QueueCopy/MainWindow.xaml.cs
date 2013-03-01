@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using GalaSoft.MvvmLight.Command;
 using QueueCopy.ViewModel;
 
@@ -10,6 +11,8 @@ namespace QueueCopy
     /// </summary>
     public partial class MainWindow : Window
     {
+        public QueueCopy.Services.IMainWindowCodeBehindService MainWindowCodeBehindService;
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -17,180 +20,97 @@ namespace QueueCopy
         {
             InitializeComponent();
             Closing += (s, e) => ViewModelLocator.Cleanup();
+
+            MainWindowCodeBehindService = GalaSoft.MvvmLight.Ioc.SimpleIoc.Default.GetInstance<QueueCopy.Services.IMainWindowCodeBehindService>();
+
+            if (MainWindowCodeBehindService == null)
+                MainWindowCodeBehindService = new Services.MainWindowCodeBehindService();
         }
 
         private void JobList_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
-
-            //e.Handled = true;
-            
+            MainWindowCodeBehindService.Any_DragEnter(e);
         }
 
         private void JobList_Drop(object sender, DragEventArgs e)
         {
-            var files = e.Data.GetData(DataFormats.FileDrop) as IEnumerable<string>;
-
-            if (files != null)
-            {
-                var fd = new Messaging.FilesDropped(files);
-
-                GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<Messaging.FilesDropped>(fd);
-            }
-
-            e.Handled = true;
+            MainWindowCodeBehindService.NewJob_Drop(e);
         }
 
         private void JobItem_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
-
-            //e.Handled = true;
+            MainWindowCodeBehindService.Any_DragEnter(e);
+            
         }
 
         private void JobItem_Drop(object sender, DragEventArgs e)
         {
-            var files = e.Data.GetData(DataFormats.FileDrop) as IEnumerable<string>;
+            var fe = sender as FrameworkElement;
 
-            if (files != null)
-            {
-                System.Windows.Controls.TextBlock tb = sender as System.Windows.Controls.TextBlock;
-                var foo = tb.DataContext as Model.Job;
-
-                var fd = new Messaging.FilesDroppedOnJob(foo, files);
-
-                GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<Messaging.FilesDroppedOnJob>(fd);
-            }
-
-            e.Handled = true;
+            MainWindowCodeBehindService.GivenJob_Drop(fe.DataContext as Model.Job,e);
         }
 
         private void SystemFolder_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
-
-            //e.Handled = true;
-
+            MainWindowCodeBehindService.Any_DragEnter(e);
+            
         }
 
         private void SystemFolder_Drop(object sender, DragEventArgs e)
         {
-            var files = e.Data.GetData(DataFormats.FileDrop) as IEnumerable<string>;
+            var fe = sender as FrameworkElement;
 
-            if (files != null)
-            {
-                FrameworkElement fe = sender as FrameworkElement;
-                var foo = fe.DataContext.ToString();
-
-                var fd = new Messaging.FilesDroppedOnFolder(foo, files);
-
-                GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<Messaging.FilesDroppedOnFolder>(fd);
-            }
-
-            e.Handled = true;
+            MainWindowCodeBehindService.Folder_Drop(fe.DataContext.ToString(), e);
         }
 
         private void ComputerFolder_DragEnter(object sender, DragEventArgs e)
         {
-            e.Effects = DragDropEffects.Copy;
-            e.Handled = true;
+            MainWindowCodeBehindService.Any_DragEnter(e);
         }
 
         private void ComputerFolder_Drop(object sender, DragEventArgs e)
         {
-            var files = e.Data.GetData(DataFormats.FileDrop) as IEnumerable<string>;
+            var fe = sender as FrameworkElement;
 
-            if (files != null)
-            {
-                FrameworkElement fe = sender as FrameworkElement;
-                var foo = fe.DataContext.ToString();
-
-                var fd = new Messaging.FilesDroppedOnFolder(foo, files);
-
-                GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<Messaging.FilesDroppedOnFolder>(fd);
-            }
-
-            e.Handled = true;
+            MainWindowCodeBehindService.Folder_Drop(fe.DataContext.ToString(), e);
         }
 
         private void RecentItem_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
-
-            //e.Handled = true;
+            MainWindowCodeBehindService.Any_DragEnter(e);
 
         }
 
         private void RecentItem_Drop(object sender, DragEventArgs e)
         {
-            var files = e.Data.GetData(DataFormats.FileDrop) as IEnumerable<string>;
+            var fe = sender as FrameworkElement;
 
-            if (files != null)
-            {
-                FrameworkElement fe = sender as FrameworkElement;
-                var foo = fe.DataContext.ToString();
-
-                var fd = new Messaging.FilesDroppedOnFolder(foo, files);
-
-                GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<Messaging.FilesDroppedOnFolder>(fd);
-            }
-
-            e.Handled = true;
+            MainWindowCodeBehindService.Folder_Drop(fe.DataContext.ToString(), e);
         }
 
         private void FavoriteItem_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
-
-            e.Handled = true;
+            MainWindowCodeBehindService.Any_DragEnter(e);
 
         }
 
         private void FavoriteItem_Drop(object sender, DragEventArgs e)
         {
-            var files = e.Data.GetData(DataFormats.FileDrop) as IEnumerable<string>;
+            var fe = sender as FrameworkElement;
 
-            if (files != null)
-            {
-                FrameworkElement fe = sender as FrameworkElement;
-                var foo = fe.DataContext.ToString();
-
-                var fd = new Messaging.FilesDroppedOnFolder(foo, files);
-
-                GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<Messaging.FilesDroppedOnFolder>(fd);
-            }
-
-            e.Handled = true;
+            MainWindowCodeBehindService.Folder_Drop(fe.DataContext.ToString(), e);
         }
 
         private void SelectedJobDetail_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effects = DragDropEffects.Copy;
-            else
-                e.Effects = DragDropEffects.None;
-
-            //e.Handled = true;
-
+            MainWindowCodeBehindService.Any_DragEnter(e);
         }
 
         private void SelectedJobDetail_Drop(object sender, DragEventArgs e)
         {
+            var fe = sender as FrameworkElement;
+
+            MainWindowCodeBehindService.GivenJob_Drop(fe.DataContext as Model.Job, e);
 
         }
 

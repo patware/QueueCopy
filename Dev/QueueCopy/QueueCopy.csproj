@@ -70,14 +70,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\JobVisibilityConverter.cs" />
     <Compile Include="Design\DesignDataService.cs" />
     <Compile Include="Messaging\FilesDropped.cs" />
     <Compile Include="Messaging\FilesDroppedOnFolder.cs" />
     <Compile Include="Messaging\FilesDroppedOnJob.cs" />
     <Compile Include="Model\DataItem.cs" />
     <Compile Include="Services\DataService.cs" />
+    <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\IDataService.cs" />
     <Compile Include="Model\Job.cs" />
+    <Compile Include="Services\IDialogService.cs" />
+    <Compile Include="Services\IMainWindowCodeBehindService.cs" />
+    <Compile Include="Services\MainWindowCodeBehindService.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">

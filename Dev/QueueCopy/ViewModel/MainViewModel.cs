@@ -13,11 +13,12 @@ namespace QueueCopy.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly Services.IDataService _dataService;
+        private readonly Services.IDialogService _dialogService;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(Services.IDataService dataService)
+        public MainViewModel(Services.IDataService dataService,Services.IDialogService dialogService)
         {
 
             _favorites = new System.Collections.ObjectModel.ObservableCollection<string>();
@@ -27,6 +28,8 @@ namespace QueueCopy.ViewModel
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<Messaging.FilesDroppedOnFolder>(this, files_DroppedOnFolder);
 
             _dataService = dataService;
+            _dialogService = dialogService;
+            
             _dataService.GetData(
                 (item, error) =>
                 {
@@ -38,7 +41,7 @@ namespace QueueCopy.ViewModel
 
                     _jobs = new System.Collections.ObjectModel.ObservableCollection<Model.Job>(item.Jobs);
 
-                    if (_jobs.Count > 0) this.SelectedJob = _jobs[0];
+                    if (_jobs.Count > 0) _selectedJob = _jobs[0];
 
                     _favorites = new System.Collections.ObjectModel.ObservableCollection<string>(item.Favorites);
 
@@ -46,6 +49,21 @@ namespace QueueCopy.ViewModel
 
                     _systemFolders = new System.Collections.ObjectModel.ObservableCollection<string>(item.SystemFolders);
                 });
+
+            //select the "favorites"
+            _selectedTabIndex = 1;
+
+            this.PropertyChanged += MainViewModel_PropertyChanged;
+        }
+
+        void MainViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case SelectedJobPropertyName:
+                    this.SelectedTabIndex = 0;
+                    break;
+            }
         }
 
 
@@ -284,6 +302,71 @@ namespace QueueCopy.ViewModel
         }
         #endregion		
 		
+        #region SelectedTabIndex
+        /// <summary>
+        /// The <see cref="SelectedTabIndex" /> property's name.
+        /// </summary>
+        public const string SelectedTabIndexPropertyName = "SelectedTabIndex";
+
+        private int _selectedTabIndex;
+
+        /// <summary>
+        /// Sets and gets the SelectedTabIndex property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public int SelectedTabIndex
+        {
+            get
+            {
+                return _selectedTabIndex;
+            }
+
+            set
+            {
+                if (_selectedTabIndex == value)
+                {
+                    return;
+                }
+
+                RaisePropertyChanging(SelectedTabIndexPropertyName);
+                _selectedTabIndex = value;
+                RaisePropertyChanged(SelectedTabIndexPropertyName);
+            }
+        }
+        #endregion
+
+        #region NewJobPath
+        /// <summary>
+        /// The <see cref="NewJobPath" /> property's name.
+        /// </summary>
+        public const string NewJobPathPropertyName = "NewJobPath";
+
+        private string _newJobPath;
+
+        /// <summary>
+        /// Sets and gets the NewJobPath property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public string NewJobPath
+        {
+            get
+            {
+                return _newJobPath;
+            }
+
+            set
+            {
+                if (_newJobPath == value)
+                {
+                    return;
+                }
+
+                RaisePropertyChanging(NewJobPathPropertyName);
+                _newJobPath = value;
+                RaisePropertyChanged(NewJobPathPropertyName);
+            }
+        }
+        #endregion
         #endregion
 
         #region Commands
@@ -350,12 +433,33 @@ namespace QueueCopy.ViewModel
             }
         }
         #endregion
+
+        #region CreateNewEmptyJob
+        private RelayCommand _createNewEmptyJob;
+
+        /// <summary>
+        /// Gets the CreateNewEmptyJob.
+        /// </summary>
+        public RelayCommand CreateNewEmptyJob
+        {
+            get
+            {
+                return _createNewEmptyJob
+                    ?? (_createNewEmptyJob = new RelayCommand(
+                                          () =>
+                                          {
+                                              this.Jobs.Add(new Model.Job());
+                                              this.SelectedJob = this.Jobs[this.Jobs.Count - 1];
+                                          }));
+            }
+        }
+        #endregion
         #endregion
 
         #region Messaging
         private void files_Dropped(Messaging.FilesDropped e)
         {
-            this.Jobs.Add(new Model.Job("Unknown_" + this.Jobs.Count, e.Content));
+            this.Jobs.Add(new Model.Job(e.Content));
         }
 
         private void files_DroppedOnJob(Messaging.FilesDroppedOnJob e)

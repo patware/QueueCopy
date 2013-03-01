@@ -13,17 +13,25 @@ namespace QueueCopy.Model
         {
             Sources = new System.Collections.ObjectModel.ObservableCollection<string>();
             this.Sources.CollectionChanged += Sources_CollectionChanged;
+            _targetFolderIsReadOnly = false;
         }
 
         void Sources_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             RaisePropertyChanged(TitlePropertyName);
         }
+
         public Job(string destination):this()
         {
-            Destination = new System.IO.DirectoryInfo(destination);
+            _destination = new System.IO.DirectoryInfo(destination);
 
-            TargetFolder = Destination.FullName;
+            _targetFolder = Destination.FullName;
+        }
+
+        public Job(IEnumerable<string> source) : this()
+        {
+            foreach (var s in source)
+                this.Sources.Add(s);
         }
 
         public Job(string destination, IEnumerable<string> source) : this(destination)
@@ -33,7 +41,6 @@ namespace QueueCopy.Model
         }
         
         public System.Collections.ObjectModel.ObservableCollection<string> Sources { get; set; }
-
 
         #region Properties
 
@@ -72,6 +79,7 @@ namespace QueueCopy.Model
         }
         #endregion
 
+        #region TargetFolder
         /// <summary>
         /// The <see cref="TargetFolder" /> property's name.
         /// </summary>
@@ -104,6 +112,7 @@ namespace QueueCopy.Model
                 RaisePropertyChanged(DestinationPropertyName);
             }
         }
+        #endregion
 
         #region Title
         /// <summary>
@@ -121,7 +130,10 @@ namespace QueueCopy.Model
         {
             get
             {
-                return Destination.FullName + " (" + this.Sources.Count + ")";
+                if (Destination == null)
+                    return "Select Target " + " (" + this.Sources.Count + ")";
+                else
+                    return Destination.FullName + " (" + this.Sources.Count + ")";
             }
         }
         #endregion

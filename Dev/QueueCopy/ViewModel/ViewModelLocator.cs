@@ -38,6 +38,9 @@ namespace QueueCopy.ViewModel
                 SimpleIoc.Default.Register<Services.IDataService, Services.DataService>();
             }
 
+            SimpleIoc.Default.Register<Services.IMainWindowCodeBehindService, Services.MainWindowCodeBehindService>();
+            SimpleIoc.Default.Register<QueueCopy.Services.IDialogService, QueueCopy.Services.DialogService>();
+
             SimpleIoc.Default.Register<MainViewModel>();
         }
 

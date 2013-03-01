@@ -3,18 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QueueCopy.Converters"
         xmlns:ignore="http://www.ignore.com"
         mc:Ignorable="d ignore"
-        Height="379.232"
+        Height="352.232"
         Width="582"
         Title="QueueCopy"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
-    
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Skins/MainSkin.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <local:JobVisibilityConverter x:Key="converter"/>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -24,94 +26,118 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
-        <ListBox Grid.Column="0" ItemsSource="{Binding Jobs}" SelectedItem="{Binding SelectedJob}" DragEnter="JobList_DragEnter" Drop="JobList_Drop" AllowDrop="True" HorizontalContentAlignment="Stretch">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="Black" BorderThickness="1" Margin="5 5 5 5">
-                        <Grid Margin="5 5 5 5">
+
+        <Grid Grid.Column="0" >
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ListBox Grid.Row="0" ItemsSource="{Binding Jobs}" SelectedItem="{Binding SelectedJob}" DragEnter="JobList_DragEnter" Drop="JobList_Drop" AllowDrop="True" HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="Black" BorderThickness="1" Margin="5 5 5 5">
+                            <Grid Margin="5 5 5 5">
+                                <Grid.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#CCC" Offset="0.0"/>
+                                        <GradientStop Color="#FFF" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Grid.Background>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock AllowDrop="True" DragEnter="JobItem_DragEnter" Drop="JobItem_Drop" Text="{Binding Title}" Grid.Row="0" Grid.Column="0"></TextBlock>
+                                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+                                    <Button Content="Play"></Button>
+                                    <Button Content="Pause"></Button>
+                                    <Button Content="Stop"></Button>
+                                </StackPanel>
+
+                                <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="10" Margin="0,5,0,0"></ProgressBar>
+                            </Grid>
+
+
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <TextBlock><Hyperlink Command="{Binding CreateNewEmptyJob}">Create empty Job</Hyperlink></TextBlock>
+            </StackPanel>
+        </Grid>
+
+        <GridSplitter Grid.Column="1" Width="5" ResizeDirection="Columns" HorizontalAlignment="Right" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
+
+        <TabControl Grid.Column="2" SelectedIndex="{Binding SelectedTabIndex}" >
+            <TabItem Header="Job" AllowDrop="True" DragEnter="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop" Visibility="{Binding SelectedJob, Converter={StaticResource converter}}" >
+                <VirtualizingStackPanel ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <Grid DataContext="{Binding SelectedJob}" AllowDrop="True" DragEnter="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop">
+                        <Grid.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#FFAEA9A9" Offset="0" />
+                                <GradientStop Color="White" Offset="1" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Source: " Grid.Row="0" Grid.Column="0"></TextBlock>
+                        <ListBox Grid.Row="0" Grid.Column="1" Margin="5" ItemsSource="{Binding Sources}" MinHeight="20">
+                        </ListBox>
+
+                        <TextBlock Text="Target: " Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                        <Grid  Margin="5" Grid.Row="1" Grid.Column="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock AllowDrop="True" DragEnter="JobItem_DragEnter" Drop="JobItem_Drop" Text="{Binding Title}" Grid.Row="0" Grid.Column="0"></TextBlock>
-                            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
-                                <Button Content="Play"></Button>
-                                <Button Content="Pause"></Button>
-                                <Button Content="Stop"></Button>
-                            </StackPanel>
-                            
-                            <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Height="10" Margin="0,5,0,0"></ProgressBar>
+                            <TextBox Text="{Binding TargetFolder}" Grid.Column="0" VerticalAlignment="Center" IsReadOnly="{Binding TargetFolderIsReadOnly}" Margin="5"></TextBox>
+                            <Button Content="..." Command="{Binding TargetBrowse}" Grid.Column="1" Width="25" Margin="5" ></Button>
                         </Grid>
-                        
-                        
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        
-        <GridSplitter Grid.Column="1" Width="5" ResizeDirection="Columns" HorizontalAlignment="Right" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext"/>
 
-        <TabControl Grid.Column="2" >
-            <TabItem Header="Job">
-                <Grid DataContext="{Binding SelectedJob}" AllowDrop="True" DragEnter="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop" >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+                        <TextBlock Text="Folders: " Grid.Row="2" Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding FoldersToDo}"></TextBlock>
+                            <TextBlock Text=" / "></TextBlock>
+                            <TextBlock Text="{Binding FoldersTotal}" ></TextBlock>
+                        </StackPanel>
 
-                    <TextBlock Text="Source: " Grid.Row="0" Grid.Column="0" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop"></TextBlock>
-                    <ListBox Grid.Row="0" Grid.Column="1" Margin="5" ItemsSource="{Binding Sources}" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop">
-                    </ListBox>
+                        <TextBlock Text="Files: " Grid.Row="3" Grid.Column="0" VerticalAlignment="Center"></TextBlock>
+                        <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding FilesToDo}"></TextBlock>
+                            <TextBlock Text=" / "></TextBlock>
+                            <TextBlock Text="{Binding FilesTotal}"></TextBlock>
+                        </StackPanel>
 
-                    <TextBlock Text="Target: " Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop"></TextBlock>
-                    <Grid  Margin="5" Grid.Row="1" Grid.Column="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding TargetFolder}" Grid.Column="0" VerticalAlignment="Center" IsReadOnly="{Binding TargetFolderIsReadOnly}"  AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop" Margin="5"></TextBox>
-                        <Button Content="..." Command="{Binding TargetBrowse}" Grid.Column="1" Width="25" Margin="5"></Button>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Padding="5">Status:</TextBlock>
+                        <TextBlock Text="{Binding StepMessage}" Grid.Row="4" Grid.Column="1" Padding="5"></TextBlock>
+
+                        <StackPanel Grid.Row="5" Grid.ColumnSpan="2">
+                            <TextBlock Text="{Binding ProgressMessage}" Padding="5"></TextBlock>
+                            <ProgressBar Minimum="0" Maximum="100" Value="{Binding Progress}" Height="10"></ProgressBar>
+                        </StackPanel>
+
+
                     </Grid>
-
-                    <TextBlock Text="Folders: " Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop"></TextBlock>
-                    <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop">
-                        <TextBlock Text="{Binding FoldersToDo}"></TextBlock>
-                        <TextBlock Text=" / "></TextBlock>
-                        <TextBlock Text="{Binding FoldersTotal}"></TextBlock>
-                    </StackPanel>
-
-                    <TextBlock Text="Files: " Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop"></TextBlock>
-                    <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop">
-                        <TextBlock Text="{Binding FilesToDo}"></TextBlock>
-                        <TextBlock Text=" / "></TextBlock>
-                        <TextBlock Text="{Binding FilesTotal}"></TextBlock>
-                    </StackPanel>
-
-                    <TextBlock Grid.Row="4" Grid.Column="0" Padding="5" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop">Status:</TextBlock>
-                    <TextBlock Text="{Binding StepMessage}" Grid.Row="4" Grid.Column="1" Padding="5" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop"></TextBlock>
-                    
-                    <StackPanel Grid.Row="5" Grid.ColumnSpan="2">
-                        <TextBlock Text="{Binding ProgressMessage}" Padding="5" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop"></TextBlock>
-                        <ProgressBar Minimum="0" Maximum="100" Value="{Binding Progress}" Height="10" AllowDrop="True" PreviewDragOver="SelectedJobDetail_DragEnter" Drop="SelectedJobDetail_Drop"></ProgressBar>
-                    </StackPanel>
-                    
-
-                </Grid>
+                </VirtualizingStackPanel>
             </TabItem>
             <TabItem Header="Favorites">
                 <Grid>
@@ -128,7 +154,7 @@
                                         <ColumnDefinition/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox Text="{Binding ., UpdateSourceTrigger=PropertyChanged}" AllowDrop="True" PreviewDragOver="FavoriteItem_DragEnter" Drop="FavoriteItem_Drop" Grid.Column="0"></TextBox>
+                                    <TextBox Text="{Binding ., UpdateSourceTrigger=PropertyChanged}" AllowDrop="True" PreviewDragEnter="FavoriteItem_DragEnter" PreviewDragOver="FavoriteItem_DragEnter" PreviewDrop="FavoriteItem_Drop" Grid.Column="0"></TextBox>
                                     <Button Content="-" Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.RemoveFavorite}" CommandParameter="{Binding .}" Padding="5,0" Margin="5,0" HorizontalAlignment="Right" Grid.Column="1"></Button>
                                 </Grid>
                             </DataTemplate>
@@ -144,7 +170,7 @@
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        
+
                         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">Enter a new Favorite folder here and press +</TextBlock>
                         <TextBox Text="{Binding FavoriteToAdd, UpdateSourceTrigger=PropertyChanged}" Name="FavoriteToAdd" Grid.Row="1" Grid.Column="0" VerticalContentAlignment="Center"></TextBox>
                         <Button Content="+" Command="{Binding AddFavorite}" IsDefault="{Binding ElementName=FavoriteToAdd, Path=IsKeyboardFocused}" Padding="5,0" Margin="5,0" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center"></Button>
@@ -183,12 +209,12 @@
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0">System Folders:</TextBlock>
                         <ListBox Grid.Row="1" ItemsSource="{Binding SystemFolders}" MinHeight="100">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding .}" AllowDrop="True" DragEnter="SystemFolder_DragEnter" Drop="SystemFolder_Drop"></TextBlock>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding .}" AllowDrop="True" DragEnter="SystemFolder_DragEnter" Drop="SystemFolder_Drop"></TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </Grid>
                     <GridSplitter Grid.Row="1" Height="5" VerticalAlignment="Center" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" ResizeDirection="Rows"></GridSplitter>
                     <Grid Grid.Row="2" >
@@ -199,16 +225,16 @@
                     </Grid>
                 </Grid>
             </TabItem>
-			<TabItem Header="Options">
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
+            <TabItem Header="Options">
+                <Grid>
+                    <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-					</Grid.RowDefinitions>
-					<CheckBox IsChecked="{Binding AutoStartOnDrop}" Grid.Row="0">Auto Start Copy/Move on drop</CheckBox>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <CheckBox IsChecked="{Binding AutoStartOnDrop}" Grid.Row="0">Auto Start Copy/Move on drop</CheckBox>
                     <TextBlock Grid.Row="1" Margin="37,0,0,5">(when possible, of course)</TextBlock>
-				</Grid>
-			</TabItem>
+                </Grid>
+            </TabItem>
         </TabControl>
 
 
