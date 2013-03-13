@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using QueueCopy.Model;
+using System.Linq;
 
 namespace QueueCopy.ViewModel
 {
@@ -21,7 +22,10 @@ namespace QueueCopy.ViewModel
         public MainViewModel(Services.IDataService dataService,Services.IDialogService dialogService)
         {
 
+            _jobs = new System.Collections.ObjectModel.ObservableCollection<Model.Job>();
             _favorites = new System.Collections.ObjectModel.ObservableCollection<string>();
+            _recents = new System.Collections.ObjectModel.ObservableCollection<string>();
+            _systemFolders = new System.Collections.ObjectModel.ObservableCollection<string>();
 
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<Messaging.FilesDropped>(this, files_Dropped);
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<Messaging.FilesDroppedOnJob>(this, files_DroppedOnJob);
@@ -33,21 +37,17 @@ namespace QueueCopy.ViewModel
             _dataService.GetData(
                 (item, error) =>
                 {
-                    if (error != null)
+                    if (item == null || error != null)
                     {
                         // Report error here
                         return;
                     }
-
-                    _jobs = new System.Collections.ObjectModel.ObservableCollection<Model.Job>(item.Jobs);
-
-                    if (_jobs.Count > 0) _selectedJob = _jobs[0];
-
-                    _favorites = new System.Collections.ObjectModel.ObservableCollection<string>(item.Favorites);
-
-                    _recents = new System.Collections.ObjectModel.ObservableCollection<string>(item.Recents);
-
-                    _systemFolders = new System.Collections.ObjectModel.ObservableCollection<string>(item.SystemFolders);
+                    if (item.Jobs != null) item.Jobs.ToList().ForEach(j => _jobs.Add(j));
+                    if (item.Favorites != null) item.Favorites.ToList().ForEach(f => _favorites.Add(f));
+                    if (item.Recents != null) item.Recents.ToList().ForEach(r => _recents.Add(r));
+                    if (item.SystemFolders != null) item.SystemFolders.ToList().ForEach(sf => _systemFolders.Add(sf));
+                    
+                    if (_jobs.Count > 0) _selectedJob = _jobs[0];                    
                 });
 
             //select the "favorites"
